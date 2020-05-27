@@ -17,6 +17,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,23 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex, WebRequest request) {
         ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.NOT_FOUND, "Entity not exists", ex.getLocalizedMessage(), getUri(request));
+        return getObjectResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleEntityNotFound(ConstraintViolationException ex, WebRequest request) {
+        List<String> errors = new ArrayList<>();
+        for (ConstraintViolation cv : new ArrayList<>(ex.getConstraintViolations())) {
+            errors.add(cv.getPropertyPath() + ": " + cv.getMessage());
+        }
+        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.BAD_REQUEST, "Validation Failed", errors, getUri(request));
+        return getObjectResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(PaymentAlreadyMadeException.class)
+    protected ResponseEntity<Object> handleEntityNotFound(PaymentAlreadyMadeException ex, WebRequest request) {
+        //TODO: Verificar si la respuesta de error es la correcta.
+        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.CONFLICT, "Payment already made", ex.getLocalizedMessage(), getUri(request));
         return getObjectResponseEntity(apiError);
     }
 

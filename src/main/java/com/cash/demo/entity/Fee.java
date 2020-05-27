@@ -37,7 +37,7 @@ public class Fee {
     private LocalDateTime paymentDue;
 
     @ApiModelProperty(notes = "Payment")
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "id")
     private Payment payment;
 

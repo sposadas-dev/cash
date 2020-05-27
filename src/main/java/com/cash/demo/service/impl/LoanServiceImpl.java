@@ -3,13 +3,17 @@ package com.cash.demo.service.impl;
 import com.cash.demo.entity.Fee;
 import com.cash.demo.entity.Loan;
 import com.cash.demo.entity.Payment;
+import com.cash.demo.exceptions.PaymentAlreadyMadeException;
 import com.cash.demo.repository.LoanRepository;
 import com.cash.demo.repository.UserRepository;
 import com.cash.demo.service.FeeService;
 import com.cash.demo.service.LoanService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@PropertySource("classpath:application.properties")
 public class LoanServiceImpl implements LoanService {
 
     private final Logger logger = LoggerFactory.getLogger(LoanServiceImpl.class);
@@ -31,6 +36,15 @@ public class LoanServiceImpl implements LoanService {
 
     @Autowired
     private FeeService feeService;
+
+    @Value("${codeSize}")
+    private Integer codeSize;
+
+    @Value("${useLetters}")
+    private boolean useLetters;
+
+    @Value("${useNumbers}")
+    private boolean useNumbers;
 
     @Override
     public Page<Loan> findAllLoans(Pageable pageable, Long userId) {
@@ -58,19 +72,23 @@ public class LoanServiceImpl implements LoanService {
         return loanRepository.save(newLoan);
     }
 
-    //TODO: Agregar logs y verificar el tema del loop entre Fee y Payment
     @Override
     public Loan savePayment(Long loanId, Integer feeNumber, Payment payment) {
         Optional<Loan> loan = loanRepository.findById(loanId);
+        logger.info("I check if the loan exists");
         if (!loan.isPresent()) {
             throw new EntityNotFoundException("The loan {" + loanId + "} not exists ");
         }
-        //TODO: Verificar una forma simple de obtener la cuota
-        if(loan.get().getFees().get(feeNumber - 1) == null) {
-            throw new EntityNotFoundException("The fee {" + feeNumber + "} not exists in the loan: " + loanId);
+        if (!(feeNumber <= loan.get().getNumberFee())) {
+            throw new EntityNotFoundException("The fee {" + feeNumber + "} not exists in " + loan.get().toString());
         }
+
         Fee fee = loan.get().getFees().get(feeNumber - 1);
+        if (fee.getPayment() != null) {
+            throw new PaymentAlreadyMadeException("The payment of the fee { " + feeNumber + " } has already been made in the loan: { " + loanId + " }");
+        }
         payment.setPaymentDate(LocalDateTime.now());
+        payment.setCode(RandomStringUtils.random(codeSize, useLetters, useNumbers));
         fee.setPayment(payment);
         return loanRepository.save(loan.get());
     }

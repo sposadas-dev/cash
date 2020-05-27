@@ -12,12 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import javax.validation.Validator;
+import javax.validation.constraints.Min;
 
 @Api(value = "Loan Management System")
 @RestController
+@Validated
 public class LoanController {
 
     private final Logger logger = LoggerFactory.getLogger(LoanController.class);
@@ -42,7 +44,7 @@ public class LoanController {
 
     @ApiOperation(value = "Pay the fees from loan")
     @PostMapping("/loans/{loanId}/fees/{feeNumber}")
-    public Loan paymentFee(@PathVariable Long loanId, @PathVariable Integer feeNumber, @Valid @RequestBody Payment payment) {
+    public Loan paymentFee(@PathVariable @Min(1) Long loanId, @PathVariable @Min(1) Integer feeNumber, @Valid @RequestBody Payment payment) {
         logger.info("Add payment from Loan {} and Fee {}", loanId, feeNumber);
         return loanService.savePayment(loanId, feeNumber, payment);
     }

@@ -25,11 +25,12 @@ public class Payment {
     @ApiModelProperty(notes = "The database generated payment ID")
     private Long id;
 
-    @OneToOne(mappedBy = "payment")
-    private Fee fee;
-
     @ApiModelProperty(notes = "Payment date")
     private LocalDateTime paymentDate;
+
+    @ApiModelProperty(notes = "Code identify")
+    @Column(unique = true)
+    private String code;
 
     @ApiModelProperty(notes = "Amount from the payment")
     private BigDecimal amount;
