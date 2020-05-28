@@ -4,6 +4,7 @@ import com.cash.demo.entity.Loan;
 import com.cash.demo.entity.Payment;
 import com.cash.demo.service.LoanService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +43,9 @@ public class LoanController {
         return loanService.saveLoan(newLoan);
     }
 
-    @ApiOperation(value = "Pay the fees from loan")
+    @ApiOperation(value = "Pay the fees from loan", response = Loan.class)
     @PostMapping("/loans/{loanId}/fees/{feeNumber}")
-    public Loan paymentFee(@PathVariable @Min(1) Long loanId, @PathVariable @Min(1) Integer feeNumber, @Valid @RequestBody Payment payment) {
+    public Loan payLoanFee(@PathVariable @Min(1) Long loanId, @PathVariable @Min(1) Integer feeNumber, @Valid @RequestBody Payment payment) {
         logger.info("Add payment from Loan {} and Fee {}", loanId, feeNumber);
         return loanService.savePayment(loanId, feeNumber, payment);
     }

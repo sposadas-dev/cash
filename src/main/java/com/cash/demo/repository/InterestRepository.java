@@ -1,12 +1,12 @@
 package com.cash.demo.repository;
 
 import com.cash.demo.entity.Interest;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InterestRepository extends CrudRepository<Interest, Integer> {
+public interface InterestRepository extends JpaRepository<Interest, Integer> {
 
-    public Interest findByFee(Integer fee);
+    Interest findByFee(Integer fee);
 
 }

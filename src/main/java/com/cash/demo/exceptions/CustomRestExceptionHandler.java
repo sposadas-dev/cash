@@ -46,14 +46,14 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         for (ConstraintViolation cv : new ArrayList<>(ex.getConstraintViolations())) {
             errors.add(cv.getPropertyPath() + ": " + cv.getMessage());
         }
-        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.BAD_REQUEST, "Validation Failed", errors, getUri(request));
+        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.BAD_REQUEST, "Validation failed", errors, getUri(request));
         return getObjectResponseEntity(apiError);
     }
 
-    @ExceptionHandler(PaymentAlreadyMadeException.class)
-    protected ResponseEntity<Object> handleEntityNotFound(PaymentAlreadyMadeException ex, WebRequest request) {
+    @ExceptionHandler(PaymentException.class)
+    protected ResponseEntity<Object> handleEntityNotFound(PaymentException ex, WebRequest request) {
         //TODO: Verificar si la respuesta de error es la correcta.
-        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.CONFLICT, "Payment already made", ex.getLocalizedMessage(), getUri(request));
+        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.CONFLICT, "Payment failed", ex.getLocalizedMessage(), getUri(request));
         return getObjectResponseEntity(apiError);
     }
 
@@ -63,7 +63,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
         for (ObjectError objectError : ex.getBindingResult().getAllErrors()) {
             errors.add(objectError.getDefaultMessage());
         }
-        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.BAD_REQUEST, "Validation Failed", errors, getUri(request));
+        ApiError apiError = new ApiError(LocalDateTime.now(), HttpStatus.BAD_REQUEST, "Validation failed", errors, getUri(request));
         return getObjectResponseEntity(apiError);
     }
 

@@ -3,7 +3,7 @@ package com.cash.demo.service.impl;
 import com.cash.demo.entity.Fee;
 import com.cash.demo.entity.Loan;
 import com.cash.demo.entity.Payment;
-import com.cash.demo.exceptions.PaymentAlreadyMadeException;
+import com.cash.demo.exceptions.PaymentException;
 import com.cash.demo.repository.LoanRepository;
 import com.cash.demo.repository.UserRepository;
 import com.cash.demo.service.FeeService;
@@ -85,7 +85,10 @@ public class LoanServiceImpl implements LoanService {
 
         Fee fee = loan.get().getFees().get(feeNumber - 1);
         if (fee.getPayment() != null) {
-            throw new PaymentAlreadyMadeException("The payment of the fee { " + feeNumber + " } has already been made in the loan: { " + loanId + " }");
+            throw new PaymentException("The payment of the fee { " + feeNumber + " } has already been made in the loan: { " + loanId + " }");
+        }
+        if (!(payment.getAmount().equals(loan.get().getAmount()))) {
+            throw new PaymentException("The amount of the payment is not enough");
         }
         payment.setPaymentDate(LocalDateTime.now());
         payment.setCode(RandomStringUtils.random(codeSize, useLetters, useNumbers));

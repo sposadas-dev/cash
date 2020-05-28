@@ -5,9 +5,9 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PaymentAlreadyMadeException extends RuntimeException  {
+public class PaymentException extends RuntimeException  {
 
-    public PaymentAlreadyMadeException(String message) {
+    public PaymentException(String message) {
         super(message);
     }
 
